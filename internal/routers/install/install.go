@@ -3,6 +3,9 @@ package install
 import (
 	"errors"
 	"fmt"
+	"github.com/ouqiang/gocron/internal/modules/logger"
+	"github.com/ouqiang/goutil"
+	"path/filepath"
 	"strconv"
 
 	macaron "gopkg.in/macaron.v1"
@@ -27,6 +30,7 @@ type InstallForm struct {
 	DbPassword           string `binding:""`
 	DbName               string `binding:""`
 	DbTablePrefix        string `binding:""`
+	SqlitePath           string `binding:""`
 	AdminUsername        string `binding:"Required;MinSize(3)"`
 	AdminPassword        string `binding:"Required;MinSize(6)"`
 	ConfirmAdminPassword string `binding:"Required;MinSize(6)"`
@@ -51,6 +55,17 @@ func Store(ctx *macaron.Context, form InstallForm) string {
 	if form.AdminPassword != form.ConfirmAdminPassword {
 		return json.CommonFailure("两次输入密码不匹配")
 	}
+
+	// sqlite3 自动创建数据库
+	if form.DbType == "sqlite3" && len(form.SqlitePath) == 0 {
+		AppDir, err := goutil.WorkDir()
+		if err != nil {
+			logger.Fatal(err)
+		}
+		utils.CreateDirIfNotExists(filepath.Join(AppDir, "db"))
+		form.SqlitePath = "db/gocron.db"
+	}
+
 	err := testDbConnection(form)
 	if err != nil {
 		return json.CommonFailure(err.Error())
@@ -110,6 +125,7 @@ func writeConfig(form InstallForm) error {
 		"db.charset", "utf8",
 		"db.max.idle.conns", "5",
 		"db.max.open.conns", "100",
+		"db.sqlitePath", form.SqlitePath,
 		"allow_ips", "",
 		"app.name", "定时任务管理系统", // 应用名称
 		"api.key", "",
@@ -147,6 +163,8 @@ func testDbConnection(form InstallForm) error {
 	s.Db.Password = form.DbPassword
 	s.Db.Database = form.DbName
 	s.Db.Charset = "utf8"
+	s.Db.SqlitePath = form.SqlitePath
+
 	db, err := models.CreateTmpDb(&s)
 	if err != nil {
 		return err

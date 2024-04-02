@@ -2,12 +2,11 @@ package setting
 
 import (
 	"errors"
-	"github.com/ouqiang/goutil"
-	"path/filepath"
-
 	"github.com/ouqiang/gocron/internal/modules/logger"
 	"github.com/ouqiang/gocron/internal/modules/utils"
+	"github.com/ouqiang/goutil"
 	"gopkg.in/ini.v1"
+	"path/filepath"
 )
 
 const DefaultSection = "default"
@@ -60,15 +59,12 @@ func Read(filename string) (*Setting, error) {
 	s.Db.Prefix = section.Key("db.prefix").MustString("")
 	s.Db.Charset = section.Key("db.charset").MustString("utf8")
 
-	sqlitePath := section.Key("db.sqlitePath").String()
-	if len(sqlitePath) == 0 {
-		AppDir, err := goutil.WorkDir()
-		if err != nil {
-			logger.Fatal(err)
-		}
-		utils.CreateDirIfNotExists(filepath.Join(AppDir, "db"))
-		sqlitePath = filepath.Join(AppDir, "db/gocron.db")
+	AppDir, err := goutil.WorkDir()
+	if err != nil {
+		logger.Fatal(err)
 	}
+	utils.CreateDirIfNotExists(filepath.Join(AppDir, "db"))
+	sqlitePath := section.Key("db.sqlitePath").MustString("db/gocron.db")
 
 	s.Db.SqlitePath = sqlitePath
 	s.Db.MaxIdleConns = section.Key("db.max.idle.conns").MustInt(30)
