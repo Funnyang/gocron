@@ -13,6 +13,7 @@
             </el-option>
           </el-select>
         </el-form-item>
+        <template v-if="this.form.db_type !== 'sqlite3'">
         <el-row>
           <el-col :span="12">
             <el-form-item label="主机名" prop="db_host">
@@ -49,6 +50,7 @@
             </el-form-item>
           </el-col>
         </el-row>
+        </template>
         <h3>管理员账号配置</h3>
         <el-row>
           <el-col :span="12">
@@ -143,6 +145,10 @@ export default {
         {
           value: 'postgres',
           label: 'PostgreSql'
+        },
+        {
+          value: 'sqlite3',
+          label: 'Sqlite'
         }
       ],
       default_ports: {

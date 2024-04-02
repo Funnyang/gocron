@@ -5,6 +5,7 @@ import (
 	crand "crypto/rand"
 	"encoding/hex"
 	"fmt"
+	"github.com/ouqiang/gocron/internal/modules/logger"
 	"math/rand"
 	"os"
 	"strings"
@@ -105,4 +106,17 @@ func FileExist(file string) bool {
 	}
 
 	return true
+}
+
+// 检测目录是否存在
+func CreateDirIfNotExists(path ...string) {
+	for _, value := range path {
+		if FileExist(value) {
+			continue
+		}
+		err := os.Mkdir(value, 0755)
+		if err != nil {
+			logger.Fatal(fmt.Sprintf("创建目录失败:%s", err.Error()))
+		}
+	}
 }

@@ -4,7 +4,6 @@ import (
 	"os"
 	"path/filepath"
 
-	"fmt"
 	"io/ioutil"
 	"strconv"
 	"strings"
@@ -46,7 +45,7 @@ func InitEnv(versionString string) {
 	LogDir = filepath.Join(AppDir, "/log")
 	AppConfig = filepath.Join(ConfDir, "/app.ini")
 	VersionFile = filepath.Join(ConfDir, "/.version")
-	createDirIfNotExists(ConfDir, LogDir)
+	utils.CreateDirIfNotExists(ConfDir, LogDir)
 	Installed = IsInstalled()
 	VersionId = ToNumberVersion(versionString)
 }
@@ -116,17 +115,4 @@ func ToNumberVersion(versionString string) int {
 	}
 
 	return versionId
-}
-
-// 检测目录是否存在
-func createDirIfNotExists(path ...string) {
-	for _, value := range path {
-		if utils.FileExist(value) {
-			continue
-		}
-		err := os.Mkdir(value, 0755)
-		if err != nil {
-			logger.Fatal(fmt.Sprintf("创建目录失败:%s", err.Error()))
-		}
-	}
 }

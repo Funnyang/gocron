@@ -1,6 +1,3 @@
-// Command gocron
-//go:generate statik -src=../../web/public -dest=../../internal -f
-
 package main
 
 import (

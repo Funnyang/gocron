@@ -13,7 +13,6 @@ RUN git clone https://github.com/ouqiang/gocron.git \
     && yarn config set ignore-engines true \
     && make install-vue \
     && make build-vue \
-    && make statik \
     && CGO_ENABLED=0 make gocron
 
 FROM alpine:3.12

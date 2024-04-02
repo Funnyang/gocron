@@ -1,8 +1,8 @@
 package routers
 
 import (
+	"github.com/ouqiang/gocron/internal/static"
 	"io"
-	"log"
 	"net/http"
 	"strconv"
 	"strings"
@@ -21,10 +21,9 @@ import (
 	"github.com/ouqiang/gocron/internal/routers/task"
 	"github.com/ouqiang/gocron/internal/routers/tasklog"
 	"github.com/ouqiang/gocron/internal/routers/user"
-	"github.com/rakyll/statik/fs"
 	"gopkg.in/macaron.v1"
 
-	_ "github.com/ouqiang/gocron/internal/statik"
+	_ "embed"
 )
 
 const (
@@ -32,23 +31,13 @@ const (
 	staticDir = "public"
 )
 
-var statikFS http.FileSystem
-
-func init() {
-	var err error
-	statikFS, err = fs.New()
-	if err != nil {
-		log.Fatal(err)
-	}
-}
-
 // Register 路由注册
 func Register(m *macaron.Macaron) {
 	m.SetURLPrefix(urlPrefix)
 	// 所有GET方法，自动注册HEAD方法
 	m.SetAutoHead(true)
 	m.Get("/", func(ctx *macaron.Context) {
-		file, err := statikFS.Open("/index.html")
+		file, err := static.WebServerRoot.Open("index.html")
 		if err != nil {
 			logger.Error("读取首页文件失败: %s", err)
 			ctx.WriteHeader(http.StatusInternalServerError)
@@ -158,7 +147,7 @@ func RegisterMiddleware(m *macaron.Macaron) {
 			"",
 			macaron.StaticOptions{
 				Prefix:     staticDir,
-				FileSystem: statikFS,
+				FileSystem: http.FS(static.WebServerRoot),
 			},
 		),
 	)

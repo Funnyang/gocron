@@ -2,6 +2,9 @@ package models
 
 import (
 	"fmt"
+	"github.com/ouqiang/gocron/internal/modules/utils"
+	"github.com/ouqiang/goutil"
+	"path/filepath"
 	"strings"
 	"time"
 
@@ -11,6 +14,7 @@ import (
 	"github.com/go-xorm/core"
 	"github.com/go-xorm/xorm"
 	_ "github.com/lib/pq"
+	_ "github.com/mattn/go-sqlite3"
 	"github.com/ouqiang/gocron/internal/modules/app"
 	"github.com/ouqiang/gocron/internal/modules/logger"
 	"github.com/ouqiang/gocron/internal/modules/setting"
@@ -100,8 +104,18 @@ func CreateDb() *xorm.Engine {
 
 // 创建临时数据库连接
 func CreateTmpDb(setting *setting.Setting) (*xorm.Engine, error) {
-	dsn := getDbEngineDSN(setting)
+	sqlitePath := setting.Db.SqlitePath
+	if len(sqlitePath) == 0 {
+		AppDir, err := goutil.WorkDir()
+		if err != nil {
+			logger.Fatal(err)
+		}
+		utils.CreateDirIfNotExists(filepath.Join(AppDir, "db"))
+		sqlitePath = filepath.Join(AppDir, "db/gocron.db")
+	}
+	setting.Db.SqlitePath = sqlitePath
 
+	dsn := getDbEngineDSN(setting)
 	return xorm.NewEngine(setting.Db.Engine, dsn)
 }
 
@@ -125,6 +139,9 @@ func getDbEngineDSN(setting *setting.Setting) string {
 			setting.Db.Host,
 			setting.Db.Port,
 			setting.Db.Database)
+	case "sqlite3":
+		dsn = setting.Db.SqlitePath
+		logger.Infof("dsn: %s", dsn)
 	}
 
 	return dsn
