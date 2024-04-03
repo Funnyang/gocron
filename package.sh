@@ -129,7 +129,11 @@ build() {
             else
                 FILENAME=${BINARY_NAME}
             fi
-            env CGO_ENABLED=0 GOOS=${OS} GOARCH=${ARCH} go build -ldflags "${LDFLAGS}" -o ${BUILD_DIR}/${BINARY_NAME}-${OS}-${ARCH}/${FILENAME} ${MAIN_FILE}
+            if [[ "${OS}" = "linux"  ]];then
+              env CGO_ENABLED=1 GOOS=${OS} GOARCH=${ARCH} CC=x86_64-linux-musl-gcc CXX=x86_64-linux-musl-g++ go build -ldflags "${LDFLAGS} -linkmode external -extldflags -static" -o ${BUILD_DIR}/${BINARY_NAME}-${OS}-${ARCH}/${FILENAME} ${MAIN_FILE}
+            else
+              env CGO_ENABLED=1 GOOS=${OS} GOARCH=${ARCH} go build -ldflags "${LDFLAGS}" -o ${BUILD_DIR}/${BINARY_NAME}-${OS}-${ARCH}/${FILENAME} ${MAIN_FILE}
+            fi
         done
     done
 }

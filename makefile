@@ -43,7 +43,7 @@ package: build-vue
 
 .PHONY: package-all
 package-all: build-vue
-	bash ./package.sh -p 'linux darwin windows'
+	bash ./package.sh -p 'linux darwin'
 
 .PHONY: build-vue
 build-vue:

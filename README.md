@@ -91,10 +91,15 @@ docker run --name gocron --link mysql:db -p 5920:5920 -d ouqg/gocron
 
 `make run` 编译并运行
 
-`make package` 打包 
+mac安装交叉编译依赖
+```bash
+brew install filosottile/musl-cross/musl-cross
+```
+
+`make package` 打包
 > 生成当前系统的压缩包 gocron-v1.5-darwin-amd64.tar.gz gocron-node-v1.5-darwin-amd64.tar.gz
 
-`make package-all` 生成Windows、Linux、Mac的压缩包
+`make package-all` 生成Linux、Mac的压缩包
 
 ### 命令
 
